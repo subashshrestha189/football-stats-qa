@@ -85,7 +85,27 @@ async function runGoldBuild({ config, snapshotDate, storageImpl }) {
     }
 
     const stagingPath = `gold/staging/${snapshotDate}/${competition}/${endpoint.expectedKey}.json`;
-    await storageImpl.writeJson(config.gcpBucketName, stagingPath, goldPayload);
+    try {
+      await storageImpl.writeJson(config.gcpBucketName, stagingPath, goldPayload);
+    } catch (_error) {
+      const manifest = {
+        status: "failed",
+        snapshot_date: snapshotDate,
+        files_written: 0,
+        reason: "staging write failed",
+      };
+
+      await storageImpl.writeJson(config.gcpBucketName, "gold/manifest.json", manifest);
+
+      return {
+        ok: false,
+        stagedFiles: stagedFiles.length,
+        promotedFiles: 0,
+        snapshotDate,
+        manifest,
+      };
+    }
+
     stagedFiles.push({
       competition,
       intent: endpoint.expectedKey,
@@ -101,6 +121,12 @@ async function runGoldBuild({ config, snapshotDate, storageImpl }) {
       file.latestPath
     );
   }
+
+  await storageImpl.writeJson(config.gcpBucketName, "gold/manifest.json", {
+    status: "complete",
+    snapshot_date: snapshotDate,
+    files_written: 8,
+  });
 
   return {
     ok: true,
