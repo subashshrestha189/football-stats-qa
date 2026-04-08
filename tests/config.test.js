@@ -132,7 +132,11 @@ test("application code accesses environment variables only through config.js", (
 
   function walk(dirPath) {
     for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
-      if (entry.name === ".git" || entry.name === "node_modules") {
+      if (
+        entry.name === ".git" ||
+        entry.name === ".next" ||
+        entry.name === "node_modules"
+      ) {
         continue;
       }
 

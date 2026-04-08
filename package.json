@@ -7,6 +7,9 @@
     "test": "tests"
   },
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "test": "node --test"
   },
   "repository": {
@@ -17,6 +20,13 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.4",
+    "next": "^15.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.4"
+  },
   "bugs": {
     "url": "https://github.com/subashshrestha189/football-stats-qa/issues"
   },

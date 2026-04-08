@@ -1,8 +1,8 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const CHAT_ROUTE_MODULE_PATH = "../app/api/chat/route.js";
-const DEBUG_ROUTE_MODULE_PATH = "../app/api/debug/route.js";
+const CHAT_ROUTE_MODULE_PATH = "../src/lib/chat-handler.js";
+const DEBUG_ROUTE_MODULE_PATH = "../src/lib/debug-handler.js";
 
 function loadChatRouteModule() {
   delete require.cache[require.resolve(CHAT_ROUTE_MODULE_PATH)];

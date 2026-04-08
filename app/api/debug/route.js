@@ -1,42 +1,28 @@
-function createDebugHandler({ config, retriever, storageImpl }) {
-  async function handle({ headers }) {
-    if (headers["x-debug-key"] !== config.debugKey) {
-      return {
-        statusCode: 401,
-        body: {
-          error: "Unauthorized",
-        },
-      };
-    }
+const { NextResponse } = require("next/server");
+const { createDebugHandler } = require("../../../src/lib/debug-handler.js");
+const { getDebugHandler } = require("../../../src/lib/runtime-services.js");
 
-    try {
-      const manifest = await storageImpl.readJson(
-        config.gcpBucketName ?? null,
-        "gold/manifest.json"
-      );
+async function GET(request) {
+  try {
+    const handler = getDebugHandler();
+    const response = await handler.handle({
+      headers: {
+        "x-debug-key": request.headers.get("x-debug-key") ?? "",
+      },
+    });
 
-      return {
-        statusCode: 200,
-        body: {
-          manifest,
-          cache: retriever.getCacheStatus(),
-        },
-      };
-    } catch (_error) {
-      return {
-        statusCode: 503,
-        body: {
-          error: "Debug data unavailable",
-        },
-      };
-    }
+    return NextResponse.json(response.body, { status: response.statusCode });
+  } catch (_error) {
+    return NextResponse.json(
+      {
+        error: "Debug data unavailable",
+      },
+      { status: 503 }
+    );
   }
-
-  return {
-    handle,
-  };
 }
 
 module.exports = {
+  GET,
   createDebugHandler,
 };

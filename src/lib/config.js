@@ -29,6 +29,7 @@ function loadConfig(env = process.env) {
     openAiApiKey: env.OPENAI_API_KEY,
     footballApiKey: env.FOOTBALL_API_KEY,
     season: env.SEASON,
+    ...(env.DEBUG_KEY ? { debugKey: env.DEBUG_KEY } : {}),
   };
 }
 

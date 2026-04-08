@@ -1,95 +1,40 @@
-function createChatHandler({
-  guardrails,
-  classifier,
-  retriever,
-  answerer,
-  sessions,
-}) {
-  async function handle({ sessionId, ip, input }) {
-    try {
-      const guardrailResult = guardrails.checkRequest({
-        ip,
-        input,
-        now: new Date(),
-      });
+const { randomUUID } = require("node:crypto");
+const { NextResponse } = require("next/server");
+const { createChatHandler } = require("../../../src/lib/chat-handler.js");
+const { getChatHandler } = require("../../../src/lib/runtime-services.js");
 
-      if (!guardrailResult.ok) {
-        return {
-          status: "refuse",
-          refusal_code: guardrailResult.code,
-          answer_text: guardrailResult.message,
-        };
-      }
+function getClientIp(request) {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "127.0.0.1"
+  );
+}
 
-      const classification = await classifier.classify({ input });
+async function POST(request) {
+  try {
+    const body = await request.json();
+    const handler = getChatHandler();
+    const response = await handler.handle({
+      sessionId: body.sessionId ?? randomUUID(),
+      ip: getClientIp(request),
+      input: body.input ?? "",
+    });
 
-      if (classification.type === "clarify") {
-        sessions.setPendingClarification(sessionId, {
-          originalInput: input,
-        });
-
-        return {
-          status: "clarify",
-          clarification_prompt: classification.clarificationPrompt,
-        };
-      }
-
-      if (classification.type === "refuse") {
-        sessions.clearAfterRefusal?.(sessionId);
-
-        return {
-          status: "refuse",
-          refusal_code: classification.refusalCode,
-          answer_text: classification.message,
-        };
-      }
-
-      const retrieval = await retriever.retrieve({
-        competition: classification.competition,
-        intent: classification.intent,
-      });
-
-      if (retrieval.type !== "answer") {
-        return {
-          status: retrieval.type === "unavailable" ? "unavailable" : "refuse",
-          refusal_code: retrieval.emptyReason,
-          snapshot_date: retrieval.snapshotDate,
-        };
-      }
-
-      const answer = await answerer.answer({
-        competition: retrieval.competition,
-        intent: retrieval.intent,
-        snapshotDate: retrieval.snapshotDate,
-        data: retrieval.data,
-      });
-
-      sessions.setLastResolvedCompetition?.(sessionId, {
-        competition: retrieval.competition,
-        intent: retrieval.intent,
-      });
-
-      return {
-        status: "answered",
-        answer_text: answer.answerText,
-        competition: retrieval.competition,
-        intent: retrieval.intent,
-        snapshot_date: retrieval.snapshotDate,
-        fallback_used: answer.fallbackUsed,
-      };
-    } catch (_error) {
-      return {
+    const statusCode = response.status === "unavailable" ? 503 : 200;
+    return NextResponse.json(response, { status: statusCode });
+  } catch (_error) {
+    return NextResponse.json(
+      {
         status: "unavailable",
         answer_text: "Please try again later.",
-      };
-    }
+      },
+      { status: 503 }
+    );
   }
-
-  return {
-    handle,
-  };
 }
 
 module.exports = {
+  POST,
   createChatHandler,
 };

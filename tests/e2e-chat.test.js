@@ -6,7 +6,7 @@ const { createClassifierService } = require("../src/lib/classifier-service");
 const { createRetrieverService } = require("../src/lib/retriever-service");
 const { createAnswererService } = require("../src/lib/answerer-service");
 const { createSessionStore } = require("../src/lib/session-state");
-const { createChatHandler } = require("../app/api/chat/route");
+const { createChatHandler } = require("../src/lib/chat-handler");
 
 function createApp() {
   const sessions = createSessionStore();
