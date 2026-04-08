@@ -51,7 +51,7 @@ test("runPreflight validates all 6 required football-data endpoints before ETL s
   assert.ok(fetchCalls.some((call) => call.url.includes("/competitions/CL/scorers")));
 });
 
-test("runPreflight throws a clear error and stops when any required endpoint is unavailable", async () => {
+test("runPreflight returns a manifest-style failure summary when any required endpoint is unavailable", async () => {
   const { runPreflight } = loadPreflightModule();
   const fetchCalls = [];
 
@@ -77,22 +77,24 @@ test("runPreflight throws a clear error and stops when any required endpoint is 
     };
   };
 
-  await assert.rejects(
-    () =>
-      runPreflight({
-        config: createConfig(),
-        fetchImpl,
-      }),
-    {
-      name: "Error",
-      message: "Preflight failed for CL scorers endpoint: HTTP 503",
-    }
-  );
+  const result = await runPreflight({
+    config: createConfig(),
+    fetchImpl,
+  });
 
   assert.equal(fetchCalls.length, 6);
+  assert.deepEqual(result, {
+    ok: false,
+    checkedEndpoints: 6,
+    manifest: {
+      status: "preflight_failed",
+      failedEndpoint: "CL scorers",
+      reason: "HTTP 503",
+    },
+  });
 });
 
-test("runPreflight fails clearly when an endpoint responds with an unexpected schema shape", async () => {
+test("runPreflight returns a manifest-style failure summary when an endpoint responds with an unexpected schema shape", async () => {
   const { runPreflight } = loadPreflightModule();
 
   const fetchImpl = async (url) => {
@@ -135,16 +137,18 @@ test("runPreflight fails clearly when an endpoint responds with an unexpected sc
     };
   };
 
-  await assert.rejects(
-    () =>
-      runPreflight({
-        config: createConfig(),
-        fetchImpl,
-      }),
-    {
-      name: "Error",
-      message:
-        "Preflight failed for PL standings endpoint: missing expected standings array",
-    }
-  );
+  const result = await runPreflight({
+    config: createConfig(),
+    fetchImpl,
+  });
+
+  assert.deepEqual(result, {
+    ok: false,
+    checkedEndpoints: 1,
+    manifest: {
+      status: "preflight_failed",
+      failedEndpoint: "PL standings",
+      reason: "missing expected standings array",
+    },
+  });
 });
