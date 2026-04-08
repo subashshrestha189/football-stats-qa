@@ -148,3 +148,61 @@ test("runBronzeFetch fetches all 6 endpoints with 700ms delay and writes raw pay
     bucketName: "football-stats-qa-prod",
   });
 });
+
+test("runBronzeFetch hard fails on a non-OK fetch response before writing later files", async () => {
+  const { runBronzeFetch } = loadBronzeModule();
+  const writes = [];
+  const sleepCalls = [];
+
+  const fetchImpl = async (url) => {
+    if (url.includes("/competitions/PL/scorers")) {
+      return {
+        ok: false,
+        status: 502,
+        async json() {
+          return {};
+        },
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { source: url };
+      },
+    };
+  };
+
+  const storageImpl = {
+    async writeJson(bucketName, objectPath, payload) {
+      writes.push({ bucketName, objectPath, payload });
+    },
+  };
+
+  const sleepImpl = async (milliseconds) => {
+    sleepCalls.push(milliseconds);
+  };
+
+  await assert.rejects(
+    () =>
+      runBronzeFetch({
+        config: createConfig(),
+        snapshotDate: "2026-04-08",
+        preflightResult: {
+          ok: true,
+          checkedEndpoints: 6,
+        },
+        fetchImpl,
+        storageImpl,
+        sleepImpl,
+      }),
+    {
+      name: "Error",
+      message: "Bronze fetch failed for EPL scorers endpoint: HTTP 502",
+    }
+  );
+
+  assert.equal(writes.length, 2);
+  assert.deepEqual(sleepCalls, [700, 700]);
+});
