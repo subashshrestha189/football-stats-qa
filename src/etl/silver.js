@@ -112,7 +112,13 @@ async function runSilverNormalization({ config, snapshotDate, storageImpl }) {
     validateRows(rows.length === 0 ? endpoint.expectedKey : endpoint.expectedKey, rows, `${competition} ${endpoint.expectedKey}`);
 
     const silverPath = `silver/${competition}/${endpoint.expectedKey}/${snapshotDate}.json`;
-    await storageImpl.writeJson(config.gcpBucketName, silverPath, { rows });
+    await storageImpl.writeJson(config.gcpBucketName, silverPath, {
+      schema_version: "1.0",
+      snapshot_date: snapshotDate,
+      competition,
+      endpoint: endpoint.expectedKey,
+      rows,
+    });
     writtenFiles += 1;
   }
 
