@@ -1,0 +1,140 @@
+{
+  "competitions": {
+    "EPL": ["epl", "premier league", "english premier league"],
+    "UCL": ["ucl", "champions league", "uefa champions league"]
+  },
+  "teams": {
+    "Arsenal": ["arsenal", "arsenal fc", "gunners"],
+    "Aston Villa": ["aston villa", "villa", "aston villa fc"],
+    "AFC Bournemouth": ["bournemouth", "afc bournemouth", "cherries"],
+    "Brentford": ["brentford", "brentford fc", "bees"],
+    "Brighton & Hove Albion": [
+      "brighton",
+      "brighton & hove albion",
+      "brighton and hove albion",
+      "seagulls"
+    ],
+    "Chelsea": ["chelsea", "chelsea fc", "blues"],
+    "Crystal Palace": ["crystal palace", "palace", "crystal palace fc"],
+    "Everton": ["everton", "everton fc", "toffees"],
+    "Fulham": ["fulham", "fulham fc", "cottagers"],
+    "Ipswich Town": ["ipswich", "ipswich town", "ipswich town fc"],
+    "Leicester City": ["leicester", "leicester city", "foxes"],
+    "Liverpool": ["liverpool", "liverpool fc", "reds"],
+    "Manchester City": [
+      "man city",
+      "manchester city",
+      "manchester city fc",
+      "city"
+    ],
+    "Manchester United": [
+      "man utd",
+      "man united",
+      "manchester united",
+      "manchester united fc"
+    ],
+    "Newcastle United": [
+      "newcastle",
+      "newcastle united",
+      "newcastle united fc",
+      "magpies"
+    ],
+    "Nottingham Forest": [
+      "nottingham forest",
+      "forest",
+      "nottingham forest fc"
+    ],
+    "Southampton": ["southampton", "southampton fc", "saints"],
+    "Tottenham Hotspur": [
+      "tottenham",
+      "tottenham hotspur",
+      "tottenham hotspur fc",
+      "spurs"
+    ],
+    "West Ham United": ["west ham", "west ham united", "hammers"],
+    "Wolverhampton Wanderers": [
+      "wolves",
+      "wolverhampton wanderers",
+      "wolverhampton"
+    ],
+    "Atalanta": ["atalanta", "atalanta bc", "atalanta bergamasca calcio"],
+    "Atletico de Madrid": [
+      "atletico",
+      "atletico madrid",
+      "atletico de madrid",
+      "atleti"
+    ],
+    "Barcelona": ["barcelona", "fc barcelona", "barca"],
+    "Bayer 04 Leverkusen": [
+      "leverkusen",
+      "bayer leverkusen",
+      "bayer 04 leverkusen"
+    ],
+    "Bayern Munich": [
+      "bayern",
+      "bayern munich",
+      "fc bayern",
+      "fc bayern munchen"
+    ],
+    "Benfica": ["benfica", "sl benfica"],
+    "Bologna": ["bologna", "bologna fc", "bologna fc 1909"],
+    "Borussia Dortmund": [
+      "dortmund",
+      "borussia dortmund",
+      "bvb"
+    ],
+    "Brest": ["brest", "stade brestois", "stade brestois 29"],
+    "Celtic": ["celtic", "celtic fc"],
+    "Club Brugge": ["club brugge", "club brugge kv", "brugge"],
+    "Dinamo Zagreb": [
+      "dinamo zagreb",
+      "gnk dinamo",
+      "gnk dinamo zagreb"
+    ],
+    "Feyenoord": ["feyenoord", "feyenoord rotterdam"],
+    "Girona": ["girona", "girona fc"],
+    "Inter Milan": [
+      "inter",
+      "inter milan",
+      "internazionale",
+      "fc internazionale milano"
+    ],
+    "Juventus": ["juventus", "juve", "juventus fc"],
+    "Lille": ["lille", "losc", "losc lille"],
+    "AS Monaco": ["monaco", "as monaco", "monaco fc"],
+    "AC Milan": ["milan", "ac milan", "milan ac"],
+    "Paris Saint-Germain": [
+      "psg",
+      "paris saint-germain",
+      "paris saint germain"
+    ],
+    "PSV": ["psv", "psv eindhoven", "philips sport vereniging"],
+    "RB Leipzig": ["rb leipzig", "leipzig", "rasenballsport leipzig"],
+    "Real Madrid": ["real madrid", "madrid", "real madrid cf"],
+    "Red Bull Salzburg": [
+      "salzburg",
+      "red bull salzburg",
+      "fc red bull salzburg"
+    ],
+    "Shakhtar Donetsk": [
+      "shakhtar",
+      "shakhtar donetsk",
+      "fc shakhtar donetsk"
+    ],
+    "Slovan Bratislava": [
+      "slovan bratislava",
+      "slovan",
+      "sk slovan bratislava"
+    ],
+    "Sparta Praha": ["sparta praha", "sparta prague", "ac sparta praha"],
+    "Sporting CP": ["sporting", "sporting cp", "sporting lisbon"],
+    "Sturm Graz": ["sturm graz", "sk sturm graz", "sturm"],
+    "VfB Stuttgart": ["stuttgart", "vfb stuttgart"],
+    "Young Boys": ["young boys", "bsc young boys"],
+    "Red Star Belgrade": [
+      "red star",
+      "red star belgrade",
+      "crvena zvezda"
+    ]
+  }
+}
