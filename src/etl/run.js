@@ -40,6 +40,9 @@ async function main() {
   }
   console.log(`Preflight ok — checked ${preflightResult.checkedEndpoints} endpoints`);
 
+  console.log("Waiting 15s after preflight before bronze fetch...");
+  await new Promise((r) => setTimeout(r, 15000));
+
   // Bronze
   console.log("Running bronze fetch...");
   const bronzeResult = await runBronzeFetch({

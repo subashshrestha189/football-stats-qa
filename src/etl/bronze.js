@@ -33,7 +33,7 @@ async function runBronzeFetch({
     });
 
     if (response.status === 429) {
-      await sleepImpl(10000);
+      await sleepImpl(65000);
       response = await fetchImpl(buildFootballDataUrl(endpoint), {
         headers: {
           "X-Auth-Token": config.footballApiKey,
