@@ -6,25 +6,8 @@ const { createSessionStore } = require("./session-state");
 const { getConfig } = require("./config");
 const { createChatHandler } = require("./chat-handler");
 const { createDebugHandler } = require("./debug-handler");
-
-function createUnavailableModelClient() {
-  return {
-    async classify() {
-      throw new Error("Model client not configured");
-    },
-    async answer() {
-      throw new Error("Model client not configured");
-    },
-  };
-}
-
-function createUnavailableStorage() {
-  return {
-    async readJson() {
-      throw new Error("Storage client not configured");
-    },
-  };
-}
+const { createGcsStorage } = require("./gcs-storage");
+const { createOpenAiModelClient } = require("./openai-model-client");
 
 let sessionStore;
 let chatHandler;
@@ -41,8 +24,8 @@ function getSessionStore() {
 function getChatHandler() {
   if (!chatHandler) {
     const config = getConfig();
-    const modelClient = createUnavailableModelClient();
-    const storageImpl = createUnavailableStorage();
+    const modelClient = createOpenAiModelClient({ apiKey: config.openAiApiKey });
+    const storageImpl = createGcsStorage({ serviceAccountKey: config.gcpServiceAccountKey });
 
     chatHandler = createChatHandler({
       guardrails: createChatGuardrails(),
@@ -63,7 +46,7 @@ function getChatHandler() {
 function getDebugHandler() {
   if (!debugHandler) {
     const config = getConfig();
-    const storageImpl = createUnavailableStorage();
+    const storageImpl = createGcsStorage({ serviceAccountKey: config.gcpServiceAccountKey });
     const retriever = createRetrieverService({
       config,
       storageImpl,

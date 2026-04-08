@@ -21,8 +21,10 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@google-cloud/storage": "^7.19.0",
     "@tailwindcss/postcss": "^4.1.4",
     "next": "^15.2.4",
+    "openai": "^6.34.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.1.4"
