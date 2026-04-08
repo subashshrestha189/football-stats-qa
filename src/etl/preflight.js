@@ -40,6 +40,8 @@ const REQUIRED_ENDPOINTS = [
 ];
 
 async function runPreflight({ config, fetchImpl }) {
+  let checkedEndpoints = 0;
+
   for (const endpoint of REQUIRED_ENDPOINTS) {
     const response = await fetchImpl(`${BASE_URL}${endpoint.path}`, {
       headers: {
@@ -47,10 +49,18 @@ async function runPreflight({ config, fetchImpl }) {
       },
     });
 
+    checkedEndpoints += 1;
+
     if (!response.ok) {
-      throw new Error(
-        `Preflight failed for ${endpoint.label} endpoint: HTTP ${response.status}`
-      );
+      return {
+        ok: false,
+        checkedEndpoints,
+        manifest: {
+          status: "preflight_failed",
+          failedEndpoint: endpoint.label,
+          reason: `HTTP ${response.status}`,
+        },
+      };
     }
 
     const payload = await response.json();
@@ -59,9 +69,15 @@ async function runPreflight({ config, fetchImpl }) {
     const hasCountProbe = Number.isInteger(payload.count);
 
     if (!hasExpectedArray && !hasCountProbe) {
-      throw new Error(
-        `Preflight failed for ${endpoint.label} endpoint: missing expected ${endpoint.expectedKey} array`
-      );
+      return {
+        ok: false,
+        checkedEndpoints,
+        manifest: {
+          status: "preflight_failed",
+          failedEndpoint: endpoint.label,
+          reason: `missing expected ${endpoint.expectedKey} array`,
+        },
+      };
     }
   }
 
