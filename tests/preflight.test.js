@@ -91,3 +91,60 @@ test("runPreflight throws a clear error and stops when any required endpoint is 
 
   assert.equal(fetchCalls.length, 6);
 });
+
+test("runPreflight fails clearly when an endpoint responds with an unexpected schema shape", async () => {
+  const { runPreflight } = loadPreflightModule();
+
+  const fetchImpl = async (url) => {
+    if (url.includes("/competitions/PL/standings")) {
+      return {
+        ok: true,
+        status: 200,
+        async json() {
+          return { competition: { code: "PL" } };
+        },
+      };
+    }
+
+    if (url.includes("/standings")) {
+      return {
+        ok: true,
+        status: 200,
+        async json() {
+          return { standings: [] };
+        },
+      };
+    }
+
+    if (url.includes("/matches")) {
+      return {
+        ok: true,
+        status: 200,
+        async json() {
+          return { matches: [] };
+        },
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { scorers: [] };
+      },
+    };
+  };
+
+  await assert.rejects(
+    () =>
+      runPreflight({
+        config: createConfig(),
+        fetchImpl,
+      }),
+    {
+      name: "Error",
+      message:
+        "Preflight failed for PL standings endpoint: missing expected standings array",
+    }
+  );
+});
