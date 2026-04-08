@@ -50,3 +50,24 @@ jobs:
         run: |
           npm test
           node -e "console.log('python ETL placeholder')"
+
+      - name: Report workflow outcome
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f gold/manifest.json ]; then
+            echo "Workflow outcome unavailable: gold/manifest.json not found"
+            exit 0
+          fi
+
+          STATUS="$(node -e "const fs=require('fs'); const manifest=JSON.parse(fs.readFileSync('gold/manifest.json','utf8')); process.stdout.write(manifest.status || 'missing')")"
+
+          if [ "$STATUS" = "complete" ]; then
+            echo "Workflow outcome: status complete"
+          elif [ "$STATUS" = "failed" ]; then
+            echo "Workflow outcome: status failed"
+          elif [ "$STATUS" = "preflight_failed" ]; then
+            echo "Workflow outcome: status preflight_failed"
+          else
+            echo "Workflow outcome: status $STATUS"
+          fi
