@@ -71,6 +71,25 @@ test("getConfig reads process.env and fails clearly when startup config is incom
   }
 });
 
+test("loadConfig fails fast when GCP_SA_KEY_APP is not valid JSON", () => {
+  const { loadConfig } = loadConfigModule();
+
+  assert.throws(
+    () =>
+      loadConfig({
+        GCP_SA_KEY_APP: "{not-json}",
+        GCP_BUCKET_NAME: "football-stats-qa-prod",
+        OPENAI_API_KEY: "sk-test",
+        FOOTBALL_API_KEY: "football-test",
+        SEASON: "2024/25",
+      }),
+    {
+      name: "Error",
+      message: "Invalid environment variable GCP_SA_KEY_APP: must be valid JSON",
+    }
+  );
+});
+
 test("aliases.json defines deterministic competition and team alias maps", () => {
   const aliasesPath = path.join(__dirname, "..", "src", "config", "aliases.json");
   const aliases = JSON.parse(fs.readFileSync(aliasesPath, "utf8"));
