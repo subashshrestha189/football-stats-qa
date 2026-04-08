@@ -3,7 +3,7 @@ const CHAT_RATE_LIMITS = {
   perMinute: 10,
   perHour: 50,
 };
-const BRONZE_FETCH_DELAY_MS = 700;
+const BRONZE_FETCH_DELAY_MS = 1500;
 const RETRIEVER_CACHE_TTL_MS = 5 * 60 * 1000;
 
 module.exports = {

@@ -26,11 +26,20 @@ async function runBronzeFetch({
 
   for (let index = 0; index < REQUIRED_ENDPOINTS.length; index += 1) {
     const endpoint = REQUIRED_ENDPOINTS[index];
-    const response = await fetchImpl(buildFootballDataUrl(endpoint), {
+    let response = await fetchImpl(buildFootballDataUrl(endpoint), {
       headers: {
         "X-Auth-Token": config.footballApiKey,
       },
     });
+
+    if (response.status === 429) {
+      await sleepImpl(10000);
+      response = await fetchImpl(buildFootballDataUrl(endpoint), {
+        headers: {
+          "X-Auth-Token": config.footballApiKey,
+        },
+      });
+    }
 
     if (!response.ok) {
       throw new Error(
