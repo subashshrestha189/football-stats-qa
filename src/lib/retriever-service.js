@@ -1,6 +1,14 @@
+const {
+  RETRIEVER_CACHE_TTL_MS,
+} = require("./app-policy");
+const {
+  buildGoldLatestPath,
+  getGoldResourceForIntent,
+} = require("./football-data");
+
 function createRetrieverService({ config, storageImpl, nowProvider }) {
   const cache = new Map();
-  const ttlMs = 5 * 60 * 1000;
+  const ttlMs = RETRIEVER_CACHE_TTL_MS;
 
   async function readManifest() {
     return readWithCache("gold/manifest.json");
@@ -40,12 +48,10 @@ function createRetrieverService({ config, storageImpl, nowProvider }) {
       };
     }
 
-    const objectPath =
-      intent === "standings"
-        ? `gold/latest/${competition}/standings.json`
-        : intent === "top_scorers"
-          ? `gold/latest/${competition}/scorers.json`
-          : `gold/latest/${competition}/matches.json`;
+    const objectPath = buildGoldLatestPath(
+      competition,
+      getGoldResourceForIntent(intent)
+    );
 
     const payload = await readWithCache(objectPath);
 

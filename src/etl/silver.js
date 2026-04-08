@@ -1,9 +1,5 @@
 const { REQUIRED_ENDPOINTS } = require("./preflight");
-
-const COMPETITION_CODES = {
-  PL: "EPL",
-  CL: "UCL",
-};
+const { buildBronzePath, buildSilverPath } = require("../lib/football-data");
 
 const REQUIRED_FIELDS = {
   standings: [
@@ -104,14 +100,14 @@ async function runSilverNormalization({ config, snapshotDate, storageImpl }) {
   let writtenFiles = 0;
 
   for (const endpoint of REQUIRED_ENDPOINTS) {
-    const competition = COMPETITION_CODES[endpoint.code];
-    const bronzePath = `bronze/${competition}/${endpoint.expectedKey}/${snapshotDate}.json`;
+    const competition = endpoint.competition;
+    const bronzePath = buildBronzePath(endpoint, snapshotDate);
     const payload = await storageImpl.readJson(config.gcpBucketName, bronzePath);
     const rows = normalizePayload(endpoint.expectedKey, payload);
 
-    validateRows(rows.length === 0 ? endpoint.expectedKey : endpoint.expectedKey, rows, `${competition} ${endpoint.expectedKey}`);
+    validateRows(endpoint.expectedKey, rows, `${competition} ${endpoint.expectedKey}`);
 
-    const silverPath = `silver/${competition}/${endpoint.expectedKey}/${snapshotDate}.json`;
+    const silverPath = buildSilverPath(endpoint, snapshotDate);
     await storageImpl.writeJson(config.gcpBucketName, silverPath, {
       schema_version: "1.0",
       snapshot_date: snapshotDate,

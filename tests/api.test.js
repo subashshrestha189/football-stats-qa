@@ -171,3 +171,69 @@ test("debug handler requires the configured debug key and returns manifest plus 
     },
   });
 });
+
+test("chat handler returns unavailable when an internal service throws", async () => {
+  const { createChatHandler } = loadChatRouteModule();
+  const handler = createChatHandler({
+    guardrails: {
+      checkRequest() {
+        return { ok: true };
+      },
+    },
+    classifier: {
+      async classify() {
+        throw new Error("classifier offline");
+      },
+    },
+    retriever: {},
+    answerer: {},
+    sessions: {},
+  });
+
+  const response = await handler.handle({
+    sessionId: "session-1",
+    ip: "203.0.113.10",
+    input: "Who is top of the EPL table?",
+  });
+
+  assert.deepEqual(response, {
+    status: "unavailable",
+    answer_text: "Please try again later.",
+  });
+});
+
+test("debug handler returns a 503 response when manifest lookup fails", async () => {
+  const { createDebugHandler } = loadDebugRouteModule();
+  const handler = createDebugHandler({
+    config: {
+      debugKey: "secret-debug-key",
+      gcpBucketName: "football-stats-qa-prod",
+    },
+    retriever: {
+      getCacheStatus() {
+        return {
+          size: 0,
+          keys: [],
+        };
+      },
+    },
+    storageImpl: {
+      async readJson() {
+        throw new Error("storage unavailable");
+      },
+    },
+  });
+
+  const response = await handler.handle({
+    headers: {
+      "x-debug-key": "secret-debug-key",
+    },
+  });
+
+  assert.deepEqual(response, {
+    statusCode: 503,
+    body: {
+      error: "Debug data unavailable",
+    },
+  });
+});

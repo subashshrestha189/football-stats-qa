@@ -1,0 +1,14 @@
+const CHAT_INPUT_MAX_LENGTH = 300;
+const CHAT_RATE_LIMITS = {
+  perMinute: 10,
+  perHour: 50,
+};
+const BRONZE_FETCH_DELAY_MS = 700;
+const RETRIEVER_CACHE_TTL_MS = 5 * 60 * 1000;
+
+module.exports = {
+  CHAT_INPUT_MAX_LENGTH,
+  CHAT_RATE_LIMITS,
+  BRONZE_FETCH_DELAY_MS,
+  RETRIEVER_CACHE_TTL_MS,
+};

@@ -1,13 +1,18 @@
+const {
+  CHAT_INPUT_MAX_LENGTH,
+  CHAT_RATE_LIMITS,
+} = require("./app-policy");
+
 function createChatGuardrails() {
   const requestsByIp = new Map();
 
   function checkRequest({ ip, input, now }) {
-    if (input.length > 300) {
+    if (input.length > CHAT_INPUT_MAX_LENGTH) {
       return {
         ok: false,
         statusCode: 400,
         code: "input_too_long",
-        message: "Questions must be 300 characters or fewer.",
+        message: `Questions must be ${CHAT_INPUT_MAX_LENGTH} characters or fewer.`,
       };
     }
 
@@ -18,7 +23,10 @@ function createChatGuardrails() {
     const recentRequests = previousRequests.filter((timestamp) => timestamp > hourAgo);
     const requestsLastMinute = recentRequests.filter((timestamp) => timestamp > minuteAgo);
 
-    if (requestsLastMinute.length >= 10 || recentRequests.length >= 50) {
+    if (
+      requestsLastMinute.length >= CHAT_RATE_LIMITS.perMinute ||
+      recentRequests.length >= CHAT_RATE_LIMITS.perHour
+    ) {
       requestsByIp.set(ip, recentRequests);
 
       return {

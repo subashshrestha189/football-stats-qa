@@ -1,4 +1,9 @@
 const { REQUIRED_ENDPOINTS } = require("./preflight");
+const {
+  buildSilverPath,
+  buildGoldLatestPath,
+  buildGoldStagingPath,
+} = require("../lib/football-data");
 
 function deriveUclPhase(rows) {
   if (!rows || rows.length === 0) {
@@ -70,8 +75,8 @@ async function runGoldBuild({ config, snapshotDate, storageImpl }) {
   const stagedFiles = [];
 
   for (const endpoint of REQUIRED_ENDPOINTS) {
-    const competition = endpoint.code === "PL" ? "EPL" : "UCL";
-    const silverPath = `silver/${competition}/${endpoint.expectedKey}/${snapshotDate}.json`;
+    const competition = endpoint.competition;
+    const silverPath = buildSilverPath(endpoint, snapshotDate);
     const silverPayload = await storageImpl.readJson(config.gcpBucketName, silverPath);
 
     let goldPayload;
@@ -84,7 +89,7 @@ async function runGoldBuild({ config, snapshotDate, storageImpl }) {
       );
     }
 
-    const stagingPath = `gold/staging/${snapshotDate}/${competition}/${endpoint.expectedKey}.json`;
+    const stagingPath = buildGoldStagingPath(endpoint, snapshotDate);
     try {
       await storageImpl.writeJson(config.gcpBucketName, stagingPath, goldPayload);
     } catch (_error) {
@@ -110,7 +115,7 @@ async function runGoldBuild({ config, snapshotDate, storageImpl }) {
       competition,
       intent: endpoint.expectedKey,
       stagingPath,
-      latestPath: `gold/latest/${competition}/${endpoint.expectedKey}.json`,
+      latestPath: buildGoldLatestPath(competition, endpoint.expectedKey),
     });
   }
 

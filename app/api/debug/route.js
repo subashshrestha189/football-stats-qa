@@ -9,15 +9,27 @@ function createDebugHandler({ config, retriever, storageImpl }) {
       };
     }
 
-    const manifest = await storageImpl.readJson(null, "gold/manifest.json");
+    try {
+      const manifest = await storageImpl.readJson(
+        config.gcpBucketName ?? null,
+        "gold/manifest.json"
+      );
 
-    return {
-      statusCode: 200,
-      body: {
-        manifest,
-        cache: retriever.getCacheStatus(),
-      },
-    };
+      return {
+        statusCode: 200,
+        body: {
+          manifest,
+          cache: retriever.getCacheStatus(),
+        },
+      };
+    } catch (_error) {
+      return {
+        statusCode: 503,
+        body: {
+          error: "Debug data unavailable",
+        },
+      };
+    }
   }
 
   return {

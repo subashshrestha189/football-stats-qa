@@ -1,11 +1,9 @@
 const { REQUIRED_ENDPOINTS } = require("./preflight");
-
-const BASE_URL = "https://api.football-data.org/v4";
-
-const COMPETITION_CODES = {
-  PL: "EPL",
-  CL: "UCL",
-};
+const {
+  buildFootballDataUrl,
+  buildBronzePath,
+} = require("../lib/football-data");
+const { BRONZE_FETCH_DELAY_MS } = require("../lib/app-policy");
 
 async function runBronzeFetch({
   config,
@@ -28,7 +26,7 @@ async function runBronzeFetch({
 
   for (let index = 0; index < REQUIRED_ENDPOINTS.length; index += 1) {
     const endpoint = REQUIRED_ENDPOINTS[index];
-    const response = await fetchImpl(`${BASE_URL}${endpoint.path}`, {
+    const response = await fetchImpl(buildFootballDataUrl(endpoint), {
       headers: {
         "X-Auth-Token": config.footballApiKey,
       },
@@ -36,18 +34,18 @@ async function runBronzeFetch({
 
     if (!response.ok) {
       throw new Error(
-        `Bronze fetch failed for ${COMPETITION_CODES[endpoint.code]} ${endpoint.expectedKey} endpoint: HTTP ${response.status}`
+        `Bronze fetch failed for ${endpoint.competition} ${endpoint.expectedKey} endpoint: HTTP ${response.status}`
       );
     }
 
     const payload = await response.json();
-    const objectPath = `bronze/${COMPETITION_CODES[endpoint.code]}/${endpoint.expectedKey}/${snapshotDate}.json`;
+    const objectPath = buildBronzePath(endpoint, snapshotDate);
 
     await storageImpl.writeJson(config.gcpBucketName, objectPath, payload);
     writtenFiles += 1;
 
     if (index < REQUIRED_ENDPOINTS.length - 1) {
-      await sleepImpl(700);
+      await sleepImpl(BRONZE_FETCH_DELAY_MS);
     }
   }
 
