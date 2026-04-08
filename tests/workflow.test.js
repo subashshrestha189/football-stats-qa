@@ -34,3 +34,21 @@ test("daily ETL workflow runs the ETL pipeline and distinguishes primary run fro
   assert.match(workflow, /0 0 \* \* \*/);
   assert.match(workflow, /0 6 \* \* \*/);
 });
+
+test("daily ETL workflow surfaces manifest outcomes for complete, failed, and preflight_failed runs", () => {
+  const workflowPath = path.join(
+    __dirname,
+    "..",
+    ".github",
+    "workflows",
+    "etl.yml"
+  );
+  const workflow = fs.readFileSync(workflowPath, "utf8");
+
+  assert.match(workflow, /name:\s*Report workflow outcome/i);
+  assert.match(workflow, /if:\s*always\(\)/i);
+  assert.match(workflow, /gold\/manifest\.json/);
+  assert.match(workflow, /preflight_failed/);
+  assert.match(workflow, /status.*complete/i);
+  assert.match(workflow, /status.*failed/i);
+});
