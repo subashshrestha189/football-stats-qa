@@ -15,6 +15,14 @@ function loadConfig(env = process.env) {
     );
   }
 
+  try {
+    JSON.parse(env.GCP_SA_KEY_APP);
+  } catch (_error) {
+    throw new Error(
+      "Invalid environment variable GCP_SA_KEY_APP: must be valid JSON"
+    );
+  }
+
   return {
     gcpServiceAccountKey: env.GCP_SA_KEY_APP,
     gcpBucketName: env.GCP_BUCKET_NAME,
