@@ -1,0 +1,52 @@
+name: Daily ETL
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  etl:
+    runs-on: ubuntu-latest
+    env:
+      FOOTBALL_API_KEY: ${{ secrets.FOOTBALL_API_KEY }}
+      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      SEASON: ${{ secrets.SEASON }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check retry manifest status
+        id: manifest_check
+        if: github.event.schedule == '0 6 * * *'
+        shell: bash
+        run: |
+          TODAY_UTC="$(date -u +%F)"
+          STATUS="missing"
+          SNAPSHOT_DATE=""
+          if [ -f gold/manifest.json ]; then
+            STATUS="$(node -e "const fs=require('fs'); const manifest=JSON.parse(fs.readFileSync('gold/manifest.json','utf8')); process.stdout.write(manifest.status || 'missing')")"
+            SNAPSHOT_DATE="$(node -e "const fs=require('fs'); const manifest=JSON.parse(fs.readFileSync('gold/manifest.json','utf8')); process.stdout.write(manifest.snapshot_date || '')")"
+          fi
+          if [ "$STATUS" = "complete" ] && [ "$SNAPSHOT_DATE" = "$TODAY_UTC" ]; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run ETL
+        if: github.event.schedule != '0 6 * * *' || steps.manifest_check.outputs.should_run == 'true'
+        run: |
+          npm test
+          node -e "console.log('python ETL placeholder')"
