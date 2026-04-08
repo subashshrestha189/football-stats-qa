@@ -131,6 +131,10 @@ test("runSilverNormalization reads all 6 bronze files, normalizes them, and writ
     writes.some(
       (write) =>
         write.objectPath === "silver/EPL/standings/2026-04-08.json" &&
+        write.payload.schema_version === "1.0" &&
+        write.payload.snapshot_date === "2026-04-08" &&
+        write.payload.competition === "EPL" &&
+        write.payload.endpoint === "standings" &&
         Array.isArray(write.payload.rows) &&
         write.payload.rows[0].goalDifference === 41
     )
@@ -139,6 +143,10 @@ test("runSilverNormalization reads all 6 bronze files, normalizes them, and writ
     writes.some(
       (write) =>
         write.objectPath === "silver/EPL/matches/2026-04-08.json" &&
+        write.payload.schema_version === "1.0" &&
+        write.payload.snapshot_date === "2026-04-08" &&
+        write.payload.competition === "EPL" &&
+        write.payload.endpoint === "matches" &&
         write.payload.rows[0].homeScore === 2 &&
         write.payload.rows[0].status === "FINISHED"
     )
@@ -147,6 +155,10 @@ test("runSilverNormalization reads all 6 bronze files, normalizes them, and writ
     writes.some(
       (write) =>
         write.objectPath === "silver/EPL/scorers/2026-04-08.json" &&
+        write.payload.schema_version === "1.0" &&
+        write.payload.snapshot_date === "2026-04-08" &&
+        write.payload.competition === "EPL" &&
+        write.payload.endpoint === "scorers" &&
         write.payload.rows[0].rank === 1 &&
         write.payload.rows[0].goals === 24
     )
@@ -154,19 +166,31 @@ test("runSilverNormalization reads all 6 bronze files, normalizes them, and writ
   assert.ok(
     writes.some(
       (write) =>
-        write.objectPath === "silver/UCL/standings/2026-04-08.json"
+        write.objectPath === "silver/UCL/standings/2026-04-08.json" &&
+        write.payload.schema_version === "1.0" &&
+        write.payload.snapshot_date === "2026-04-08" &&
+        write.payload.competition === "UCL" &&
+        write.payload.endpoint === "standings"
     )
   );
   assert.ok(
     writes.some(
       (write) =>
-        write.objectPath === "silver/UCL/matches/2026-04-08.json"
+        write.objectPath === "silver/UCL/matches/2026-04-08.json" &&
+        write.payload.schema_version === "1.0" &&
+        write.payload.snapshot_date === "2026-04-08" &&
+        write.payload.competition === "UCL" &&
+        write.payload.endpoint === "matches"
     )
   );
   assert.ok(
     writes.some(
       (write) =>
-        write.objectPath === "silver/UCL/scorers/2026-04-08.json"
+        write.objectPath === "silver/UCL/scorers/2026-04-08.json" &&
+        write.payload.schema_version === "1.0" &&
+        write.payload.snapshot_date === "2026-04-08" &&
+        write.payload.competition === "UCL" &&
+        write.payload.endpoint === "scorers"
     )
   );
   assert.deepEqual(result, {
