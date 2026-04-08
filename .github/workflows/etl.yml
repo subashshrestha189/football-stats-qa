@@ -25,7 +25,7 @@ jobs:
           node-version: 24
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Check retry manifest status
         id: manifest_check
@@ -47,9 +47,7 @@ jobs:
 
       - name: Run ETL
         if: github.event.schedule != '0 6 * * *' || steps.manifest_check.outputs.should_run == 'true'
-        run: |
-          npm test
-          node -e "console.log('python ETL placeholder')"
+        run: node src/etl/run.js
 
       - name: Report workflow outcome
         if: always()
