@@ -33,6 +33,13 @@ async function runBronzeFetch({
         "X-Auth-Token": config.footballApiKey,
       },
     });
+
+    if (!response.ok) {
+      throw new Error(
+        `Bronze fetch failed for ${COMPETITION_CODES[endpoint.code]} ${endpoint.expectedKey} endpoint: HTTP ${response.status}`
+      );
+    }
+
     const payload = await response.json();
     const objectPath = `bronze/${COMPETITION_CODES[endpoint.code]}/${endpoint.expectedKey}/${snapshotDate}.json`;
 
