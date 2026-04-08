@@ -113,7 +113,7 @@ test("runGoldBuild writes all gold staging files and promotes them when every re
   });
 
   assert.equal(reads.length, 6);
-  assert.equal(writes.length, 6);
+  assert.equal(writes.length, 7);
   assert.equal(copies.length, 6);
   assert.ok(
     writes.some(
@@ -130,6 +130,15 @@ test("runGoldBuild writes all gold staging files and promotes them when every re
       (copy) =>
         copy.fromPath === "gold/staging/2026-04-08/EPL/standings.json" &&
         copy.toPath === "gold/latest/EPL/standings.json"
+    )
+  );
+  assert.ok(
+    writes.some(
+      (write) =>
+        write.objectPath === "gold/manifest.json" &&
+        write.payload.status === "complete" &&
+        write.payload.snapshot_date === "2026-04-08" &&
+        write.payload.files_written === 8
     )
   );
   assert.deepEqual(result, {
@@ -186,4 +195,66 @@ test("runGoldBuild does not promote any gold files when a required silver input 
 
   assert.equal(copies.length, 0);
   assert.ok(writes.length < 6);
+});
+
+test("runGoldBuild writes a failed manifest and does not promote when a staging write fails", async () => {
+  const { runGoldBuild } = loadGoldModule();
+  const writes = [];
+  const copies = [];
+
+  const storageImpl = {
+    async readJson(_bucketName, objectPath) {
+      return {
+        schema_version: "1.0",
+        snapshot_date: "2026-04-08",
+        competition: objectPath.includes("/EPL/") ? "EPL" : "UCL",
+        endpoint: objectPath.includes("/standings/")
+          ? "standings"
+          : objectPath.includes("/matches/")
+            ? "matches"
+            : "scorers",
+        rows: [],
+      };
+    },
+    async writeJson(bucketName, objectPath, payload) {
+      writes.push({ bucketName, objectPath, payload });
+
+      if (objectPath === "gold/staging/2026-04-08/UCL/matches.json") {
+        throw new Error("storage unavailable");
+      }
+    },
+    async copyObject(bucketName, fromPath, toPath) {
+      copies.push({ bucketName, fromPath, toPath });
+    },
+  };
+
+  const result = await runGoldBuild({
+    config: createConfig(),
+    snapshotDate: "2026-04-08",
+    storageImpl,
+  });
+
+  assert.equal(copies.length, 0);
+  assert.ok(
+    writes.some(
+      (write) =>
+        write.objectPath === "gold/manifest.json" &&
+        write.payload.status === "failed" &&
+        write.payload.snapshot_date === "2026-04-08" &&
+        write.payload.files_written === 0 &&
+        write.payload.reason === "staging write failed"
+    )
+  );
+  assert.deepEqual(result, {
+    ok: false,
+    stagedFiles: 4,
+    promotedFiles: 0,
+    snapshotDate: "2026-04-08",
+    manifest: {
+      status: "failed",
+      snapshot_date: "2026-04-08",
+      files_written: 0,
+      reason: "staging write failed",
+    },
+  });
 });
