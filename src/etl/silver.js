@@ -45,13 +45,18 @@ function normalizeStandingsRows(payload) {
   return rows;
 }
 
+function extractTeamName(team) {
+  if (typeof team === "string") return team;
+  return team?.name ?? team?.shortName ?? null;
+}
+
 function normalizeMatchRows(payload) {
   return (payload.matches ?? []).map((row) => ({
     utcDate: row.utcDate,
-    homeTeam: row.homeTeam?.name,
-    awayTeam: row.awayTeam?.name,
-    homeScore: row.score?.fullTime?.home,
-    awayScore: row.score?.fullTime?.away,
+    homeTeam: extractTeamName(row.homeTeam),
+    awayTeam: extractTeamName(row.awayTeam),
+    homeScore: row.score?.fullTime?.home ?? null,
+    awayScore: row.score?.fullTime?.away ?? null,
     status: row.status,
   }));
 }
