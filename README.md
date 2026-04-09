@@ -2,7 +2,48 @@
 
 Football Q&A app for Premier League and UEFA Champions League data, backed by a daily ETL pipeline from `football-data.org`, gold JSON snapshots in GCS, and a Next.js serving app on Vercel.
 
+Live app: [football-stats-qa.vercel.app](https://football-stats-qa.vercel.app)
 Parent PRD: [#1](https://github.com/subashshrestha189/football-stats-qa/issues/1)
+
+## Architecture
+
+```
+football-data.org API
+        │
+        ▼
+GitHub Actions  (.github/workflows/etl.yml)
+daily at 00:00 UTC — node src/etl/run.js
+        │
+   ┌────┴────────────────────────────┐
+   │  src/etl/                       │
+   │  ├── preflight.js  verify 6 endpoints alive
+   │  ├── bronze.js     fetch raw JSON → GCS bronze/
+   │  ├── silver.js     normalise + validate → GCS silver/
+   │  └── gold.js       shape 8 serving views → GCS gold/
+   └────────────────────────────────┘
+        │
+        ▼
+Google Cloud Storage  (football-stats-qa-prod)
+   gold/latest/EPL/{standings,scorers,matches}.json
+   gold/latest/UCL/{standings,scorers,matches}.json
+   gold/manifest.json
+        │
+        ▼
+Next.js App on Vercel  (app/api/chat/route.js)
+   ├── chat-guardrails.js   rate limit + input validation
+   ├── classifier-service.js + rule-based-model-client.js
+   │     regex keyword matching — no external API required
+   ├── retriever-service.js  manifest gate + GCS read + TTL cache
+   └── answerer-service.js   template answer generation
+        │
+        ▼
+React Chat UI  (app/page.jsx)
+   textarea → POST /api/chat → ResponseCard
+   states: answered | clarify | refuse | unavailable
+```
+
+**Supported queries:** standings, top scorers, recent results, upcoming fixtures — for EPL and UCL.
+**Data freshness:** daily snapshot, cited in every answer ("Data as of YYYY-MM-DD").
 
 ## Recommended Execution Order
 

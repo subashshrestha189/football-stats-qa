@@ -10,7 +10,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --test"
+    "test": "node --test",
+    "test:e2e": "playwright test"
   },
   "repository": {
     "type": "git",
@@ -33,5 +34,8 @@
   "bugs": {
     "url": "https://github.com/subashshrestha189/football-stats-qa/issues"
   },
-  "homepage": "https://github.com/subashshrestha189/football-stats-qa#readme"
+  "homepage": "https://github.com/subashshrestha189/football-stats-qa#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
 }

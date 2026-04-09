@@ -121,7 +121,8 @@ test("application code accesses environment variables only through config.js", (
       if (
         entry.name === ".git" ||
         entry.name === ".next" ||
-        entry.name === "node_modules"
+        entry.name === "node_modules" ||
+        entry.name === "playwright-tests"
       ) {
         continue;
       }
@@ -138,6 +139,10 @@ test("application code accesses environment variables only through config.js", (
       }
 
       if (fullPath.startsWith(path.join(repoRoot, "tests"))) {
+        continue;
+      }
+
+      if (fullPath === path.join(repoRoot, "playwright.config.js")) {
         continue;
       }
 
