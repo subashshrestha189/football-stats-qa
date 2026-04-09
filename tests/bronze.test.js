@@ -96,7 +96,7 @@ test("runBronzeFetch fetches all 6 endpoints with 700ms delay and writes raw pay
   });
 
   assert.equal(fetchCalls.length, 6);
-  assert.deepEqual(sleepCalls, [700, 700, 700, 700, 700]);
+  assert.deepEqual(sleepCalls, [1500, 1500, 1500, 1500, 1500]);
   assert.equal(writes.length, 6);
 
   assert.ok(
@@ -144,6 +144,7 @@ test("runBronzeFetch fetches all 6 endpoints with 700ms delay and writes raw pay
   assert.deepEqual(result, {
     ok: true,
     writtenFiles: 6,
+    skippedEndpoints: [],
     snapshotDate: "2026-04-08",
     bucketName: "football-stats-qa-prod",
   });
@@ -204,5 +205,5 @@ test("runBronzeFetch hard fails on a non-OK fetch response before writing later 
   );
 
   assert.equal(writes.length, 2);
-  assert.deepEqual(sleepCalls, [700, 700]);
+  assert.deepEqual(sleepCalls, [1500, 1500]);
 });

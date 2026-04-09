@@ -131,14 +131,19 @@ async function runGoldBuild({ config, snapshotDate, storageImpl, skippedEndpoint
     );
   }
 
-  const manifest = {
-    status: skippedEndpoints.length > 0 ? "partial" : "complete",
-    snapshot_date: snapshotDate,
-    files_written: stagedFiles.length,
-  };
-  if (skippedEndpoints.length > 0) {
-    manifest.skipped_endpoints = skippedEndpoints;
-  }
+  const manifest =
+    skippedEndpoints.length > 0
+      ? {
+          status: "partial",
+          snapshot_date: snapshotDate,
+          files_written: stagedFiles.length,
+          skipped_endpoints: skippedEndpoints,
+        }
+      : {
+          status: "complete",
+          snapshot_date: snapshotDate,
+          files_written: 8,
+        };
   await storageImpl.writeJson(config.gcpBucketName, "gold/manifest.json", manifest);
 
   return {

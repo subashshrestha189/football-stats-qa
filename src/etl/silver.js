@@ -85,12 +85,12 @@ function normalizePayload(endpointType, payload) {
 function validateRows(endpointType, rows, endpointLabel) {
   for (const row of rows) {
     for (const field of REQUIRED_FIELDS[endpointType]) {
+      const MATCHES_NULLABLE_FIELDS = new Set(["homeScore", "awayScore", "homeTeam", "awayTeam"]);
       const isMissing =
         row[field] === undefined ||
         row[field] === "" ||
         (row[field] === null &&
-          !(endpointType === "matches" &&
-            (field === "homeScore" || field === "awayScore")));
+          !(endpointType === "matches" && MATCHES_NULLABLE_FIELDS.has(field)));
 
       if (isMissing) {
         throw new Error(

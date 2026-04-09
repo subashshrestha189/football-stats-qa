@@ -3,20 +3,7 @@ const { runBronzeFetch } = require("./bronze");
 const { runSilverNormalization } = require("./silver");
 const { runGoldBuild } = require("./gold");
 const { createGcsEtlStorage } = require("./gcs-etl-storage");
-
-function loadEtlConfig() {
-  const required = ["FOOTBALL_API_KEY", "GCP_SA_KEY", "GCP_BUCKET_NAME", "SEASON"];
-  const missing = required.filter((name) => !process.env[name]);
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
-  }
-  return {
-    footballApiKey: process.env.FOOTBALL_API_KEY,
-    gcpServiceAccountKey: process.env.GCP_SA_KEY,
-    gcpBucketName: process.env.GCP_BUCKET_NAME,
-    season: process.env.SEASON,
-  };
-}
+const { loadEtlConfig } = require("../lib/config");
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

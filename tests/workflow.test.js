@@ -28,8 +28,7 @@ test("daily ETL workflow runs the ETL pipeline and distinguishes primary run fro
   const workflow = fs.readFileSync(workflowPath, "utf8");
 
   assert.match(workflow, /name:\s*Daily ETL/i);
-  assert.match(workflow, /npm test/);
-  assert.match(workflow, /python/i);
+  assert.match(workflow, /node src\/etl\/run\.js/);
   assert.match(workflow, /github\.event\.schedule/);
   assert.match(workflow, /0 0 \* \* \*/);
   assert.match(workflow, /0 6 \* \* \*/);
