@@ -49,7 +49,7 @@ Each ETL run uses exactly 6 `football-data.org` calls:
 - UCL matches
 - UCL scorers
 
-Calls are paced with a `700ms` delay between requests.
+Calls are paced with a `1500ms` delay between requests.
 
 ### Preflight
 
@@ -113,11 +113,12 @@ Manifest responsibilities:
 
 Expected statuses:
 
-- `complete`
-- `failed`
-- `preflight_failed`
+- `complete` — all 8 gold files written successfully
+- `partial` — some endpoints were skipped (e.g. 429 rate limit) but core files exist
+- `failed` — run failed after retries
+- `preflight_failed` — source API was unreachable before any fetch began
 
-If the latest run is not complete, the app continues serving the last successful snapshot.
+If the latest run is not `complete`, the app continues serving the last successful snapshot.
 
 ## Runtime Architecture
 
@@ -140,14 +141,19 @@ The bucket remains private at all times.
 
 A server-only config module validates required environment variables at startup.
 
-Examples of required config:
+Required runtime config (Vercel):
 
-- `FOOTBALL_DATA_API_KEY`
-- OpenAI API key
-- GCS credentials/config
-- bucket name
-- configured season
-- debug key
+- `GCP_SA_KEY_APP` — service account JSON for GCS reads (read-only)
+- `GCP_BUCKET_NAME` — GCS bucket name
+
+Required ETL config (GitHub Actions):
+
+- `FOOTBALL_API_KEY` — football-data.org API key
+- `GCP_SA_KEY` — service account JSON for GCS writes
+- `GCP_BUCKET_NAME` — GCS bucket name
+- `SEASON` — season year (e.g. `2024`)
+
+No LLM API key is required at runtime. The classifier and answerer are fully rule-based.
 
 Startup fails fast if required config is missing.
 
@@ -182,23 +188,21 @@ Rules:
 
 ### Step 3: Classification
 
-The first `gpt-4o-mini` call classifies the user question into structured output.
+Classification is handled by a rule-based model client (`src/lib/rule-based-model-client.js`). No external API call is made.
 
-Classifier responsibilities:
+The classifier uses regex keyword patterns to detect intent and competition:
 
-- detect intent
-- extract slots
-- determine confidence
-- optionally provide one clarification prompt
+- **Intent patterns:** standings, top_scorers, recent_results, upcoming_fixtures
+- **Competition patterns:** EPL (premier league, prem, epl), UCL (champions league, ucl)
+- **Out-of-scope patterns:** injuries, transfers, assists, wages, manager, history, etc.
 
 Supported result types:
 
-- answerable supported query
-- clarify
-- refuse
-- unavailable
+- `high` confidence — both intent and competition detected → proceed to retrieval
+- `low` confidence — intent or competition missing → return clarification prompt
+- `refuse` — out-of-scope keyword matched → return refusal message
 
-Low-confidence classification is forced to clarification by app code before retrieval.
+Low-confidence classification is returned as a `clarify` response before retrieval.
 
 ### Step 4: Retrieval
 
@@ -221,15 +225,16 @@ Example empty-result codes:
 
 ### Step 5: Answer Generation
 
-The second `gpt-4o-mini` call is used only for phrasing.
+Answer generation is handled by the same rule-based model client (`src/lib/rule-based-model-client.js`). No external API call is made.
 
-Rules:
+Template formatters produce grounded answers directly from the retrieved gold data:
 
-- answer only from retrieved payload
-- do not add unsupported facts
-- include snapshot citation
+- **standings** — top 5 rows with position, team, points, W/D/L
+- **top_scorers** — top 5 rows with rank, player, team, goals
+- **recent_results** — last 5 finished matches with scores
+- **upcoming_fixtures** — next 5 scheduled matches with dates
 
-The backend validates generated output. If the phrasing step fails or violates grounding rules, the app returns a deterministic fallback answer instead of an error.
+Every answer includes a snapshot citation ("Data as of YYYY-MM-DD"). If the gold file returns empty rows, a deterministic fallback message is returned instead.
 
 ## Domain Rules
 
@@ -347,4 +352,4 @@ Test layers:
 - end-to-end tests for answered, clarify, refuse, and unavailable flows
 - Playwright walkthrough for one answered and one refusal scenario
 
-Automated tests use checked-in fixtures and mocked LLM responses. Live model calls are reserved for manual smoke testing.
+Automated tests use checked-in fixtures and injected in-memory stubs for storage and model clients. No external API calls are made during tests. Playwright E2E tests run against the live Vercel deployment using a real browser (Chromium headless).
