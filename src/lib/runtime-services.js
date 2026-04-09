@@ -7,7 +7,7 @@ const { getConfig } = require("./config");
 const { createChatHandler } = require("./chat-handler");
 const { createDebugHandler } = require("./debug-handler");
 const { createGcsStorage } = require("./gcs-storage");
-const { createOpenAiModelClient } = require("./openai-model-client");
+const { createAnthropicModelClient } = require("./anthropic-model-client");
 
 let sessionStore;
 let chatHandler;
@@ -24,7 +24,7 @@ function getSessionStore() {
 function getChatHandler() {
   if (!chatHandler) {
     const config = getConfig();
-    const modelClient = createOpenAiModelClient({ apiKey: config.openAiApiKey });
+    const modelClient = createAnthropicModelClient({ apiKey: config.anthropicApiKey });
     const storageImpl = createGcsStorage({ serviceAccountKey: config.gcpServiceAccountKey });
 
     chatHandler = createChatHandler({

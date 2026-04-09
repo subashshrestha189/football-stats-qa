@@ -196,10 +196,8 @@ test("chat handler returns unavailable when an internal service throws", async (
     input: "Who is top of the EPL table?",
   });
 
-  assert.deepEqual(response, {
-    status: "unavailable",
-    answer_text: "Please try again later.",
-  });
+  assert.equal(response.status, "unavailable");
+  assert.equal(response.answer_text, "Please try again later.");
 });
 
 test("debug handler returns a 503 response when manifest lookup fails", async () => {

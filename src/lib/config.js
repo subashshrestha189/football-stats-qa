@@ -1,7 +1,7 @@
 const REQUIRED_ENV_VARS = [
   "GCP_BUCKET_NAME",
   "GCP_SA_KEY_APP",
-  "OPENAI_API_KEY",
+  "ANTHROPIC_API_KEY",
 ];
 
 function loadConfig(env = process.env) {
@@ -24,7 +24,7 @@ function loadConfig(env = process.env) {
   return {
     gcpServiceAccountKey: env.GCP_SA_KEY_APP,
     gcpBucketName: env.GCP_BUCKET_NAME,
-    openAiApiKey: env.OPENAI_API_KEY,
+    anthropicApiKey: env.ANTHROPIC_API_KEY,
     ...(env.DEBUG_KEY ? { debugKey: env.DEBUG_KEY } : {}),
   };
 }

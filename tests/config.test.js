@@ -16,13 +16,13 @@ test("loadConfig returns required env values when all are present", () => {
   const config = loadConfig({
     GCP_SA_KEY_APP: '{"client_email":"app-runner@example.com"}',
     GCP_BUCKET_NAME: "football-stats-qa-prod",
-    OPENAI_API_KEY: "sk-test",
+    ANTHROPIC_API_KEY: "sk-ant-test",
   });
 
   assert.deepEqual(config, {
     gcpServiceAccountKey: '{"client_email":"app-runner@example.com"}',
     gcpBucketName: "football-stats-qa-prod",
-    openAiApiKey: "sk-test",
+    anthropicApiKey: "sk-ant-test",
   });
 });
 
@@ -37,7 +37,7 @@ test("loadConfig throws a clear error listing missing required env vars", () => 
     {
       name: "Error",
       message:
-        "Missing required environment variables: GCP_SA_KEY_APP, OPENAI_API_KEY",
+        "Missing required environment variables: GCP_SA_KEY_APP, ANTHROPIC_API_KEY",
     }
   );
 });
@@ -49,7 +49,7 @@ test("getConfig reads process.env and fails clearly when startup config is incom
     ...originalEnv,
     GCP_SA_KEY_APP: '{"client_email":"app-runner@example.com"}',
     GCP_BUCKET_NAME: "football-stats-qa-prod",
-    OPENAI_API_KEY: "",
+    ANTHROPIC_API_KEY: "",
   };
 
   try {
@@ -57,7 +57,7 @@ test("getConfig reads process.env and fails clearly when startup config is incom
 
     assert.throws(() => getConfig(), {
       name: "Error",
-      message: "Missing required environment variables: OPENAI_API_KEY",
+      message: "Missing required environment variables: ANTHROPIC_API_KEY",
     });
   } finally {
     process.env = originalEnv;
@@ -72,9 +72,7 @@ test("loadConfig fails fast when GCP_SA_KEY_APP is not valid JSON", () => {
       loadConfig({
         GCP_SA_KEY_APP: "{not-json}",
         GCP_BUCKET_NAME: "football-stats-qa-prod",
-        OPENAI_API_KEY: "sk-test",
-        FOOTBALL_API_KEY: "football-test",
-        SEASON: "2024/25",
+        ANTHROPIC_API_KEY: "sk-ant-test",
       }),
     {
       name: "Error",
@@ -112,7 +110,7 @@ test(".env.example lists every required runtime variable without real secrets", 
 
   assert.match(envExample, /^GCP_SA_KEY_APP=$/m);
   assert.match(envExample, /^GCP_BUCKET_NAME=$/m);
-  assert.match(envExample, /^OPENAI_API_KEY=$/m);
+  assert.match(envExample, /^ANTHROPIC_API_KEY=$/m);
   assert.match(envExample, /^FOOTBALL_API_KEY=$/m);
   assert.match(envExample, /^SEASON=$/m);
   assert.doesNotMatch(envExample, /sk-[A-Za-z0-9]/);
