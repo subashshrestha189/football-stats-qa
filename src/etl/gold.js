@@ -71,10 +71,14 @@ function buildGoldPayload(endpointType, silverPayload) {
   return buildScorersPayload(silverPayload);
 }
 
-async function runGoldBuild({ config, snapshotDate, storageImpl }) {
+async function runGoldBuild({ config, snapshotDate, storageImpl, skippedEndpoints = [] }) {
   const stagedFiles = [];
 
   for (const endpoint of REQUIRED_ENDPOINTS) {
+    if (skippedEndpoints.includes(endpoint.label)) {
+      continue;
+    }
+
     const competition = endpoint.competition;
     const silverPath = buildSilverPath(endpoint, snapshotDate);
     const silverPayload = await storageImpl.readJson(config.gcpBucketName, silverPath);
@@ -127,11 +131,15 @@ async function runGoldBuild({ config, snapshotDate, storageImpl }) {
     );
   }
 
-  await storageImpl.writeJson(config.gcpBucketName, "gold/manifest.json", {
-    status: "complete",
+  const manifest = {
+    status: skippedEndpoints.length > 0 ? "partial" : "complete",
     snapshot_date: snapshotDate,
-    files_written: 8,
-  });
+    files_written: stagedFiles.length,
+  };
+  if (skippedEndpoints.length > 0) {
+    manifest.skipped_endpoints = skippedEndpoints;
+  }
+  await storageImpl.writeJson(config.gcpBucketName, "gold/manifest.json", manifest);
 
   return {
     ok: true,

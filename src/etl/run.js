@@ -62,11 +62,15 @@ async function main() {
     });
     process.exit(1);
   }
+  const { skippedEndpoints } = bronzeResult;
+  if (skippedEndpoints.length > 0) {
+    console.warn(`Bronze: skipped ${skippedEndpoints.length} endpoint(s) after 429 retry: ${skippedEndpoints.join(", ")}`);
+  }
   console.log(`Bronze ok — wrote ${bronzeResult.writtenFiles} files`);
 
   // Silver
   console.log("Running silver normalization...");
-  const silverResult = await runSilverNormalization({ config, snapshotDate, storageImpl });
+  const silverResult = await runSilverNormalization({ config, snapshotDate, storageImpl, skippedEndpoints });
   if (!silverResult.ok) {
     console.error("Silver normalization failed");
     await storageImpl.writeJson(config.gcpBucketName, "gold/manifest.json", {
@@ -80,7 +84,7 @@ async function main() {
 
   // Gold
   console.log("Running gold build...");
-  const goldResult = await runGoldBuild({ config, snapshotDate, storageImpl });
+  const goldResult = await runGoldBuild({ config, snapshotDate, storageImpl, skippedEndpoints });
   if (!goldResult.ok) {
     console.error("Gold build failed:", goldResult.manifest);
     process.exit(1);

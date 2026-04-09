@@ -101,10 +101,14 @@ function validateRows(endpointType, rows, endpointLabel) {
   }
 }
 
-async function runSilverNormalization({ config, snapshotDate, storageImpl }) {
+async function runSilverNormalization({ config, snapshotDate, storageImpl, skippedEndpoints = [] }) {
   let writtenFiles = 0;
 
   for (const endpoint of REQUIRED_ENDPOINTS) {
+    if (skippedEndpoints.includes(endpoint.label)) {
+      continue;
+    }
+
     const competition = endpoint.competition;
     const bronzePath = buildBronzePath(endpoint, snapshotDate);
     const payload = await storageImpl.readJson(config.gcpBucketName, bronzePath);

@@ -23,6 +23,7 @@ async function runBronzeFetch({
   }
 
   let writtenFiles = 0;
+  const skippedEndpoints = [];
 
   for (let index = 0; index < REQUIRED_ENDPOINTS.length; index += 1) {
     const endpoint = REQUIRED_ENDPOINTS[index];
@@ -39,6 +40,15 @@ async function runBronzeFetch({
           "X-Auth-Token": config.footballApiKey,
         },
       });
+    }
+
+    if (response.status === 429) {
+      skippedEndpoints.push(endpoint.label);
+
+      if (index < REQUIRED_ENDPOINTS.length - 1) {
+        await sleepImpl(BRONZE_FETCH_DELAY_MS);
+      }
+      continue;
     }
 
     if (!response.ok) {
@@ -61,6 +71,7 @@ async function runBronzeFetch({
   return {
     ok: true,
     writtenFiles,
+    skippedEndpoints,
     snapshotDate,
     bucketName: config.gcpBucketName,
   };
