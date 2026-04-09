@@ -82,6 +82,7 @@ function createChatHandler({
       return {
         status: "unavailable",
         answer_text: "Please try again later.",
+        _debug_error: error?.message,
       };
     }
   }
