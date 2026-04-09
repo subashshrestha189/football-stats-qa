@@ -77,7 +77,8 @@ function createChatHandler({
         snapshot_date: retrieval.snapshotDate,
         fallback_used: answer.fallbackUsed,
       };
-    } catch (_error) {
+    } catch (error) {
+      console.error("chat-handler caught error:", error?.message, error?.stack);
       return {
         status: "unavailable",
         answer_text: "Please try again later.",

@@ -23,11 +23,13 @@ async function POST(request) {
 
     const statusCode = response.status === "unavailable" ? 503 : 200;
     return NextResponse.json(response, { status: statusCode });
-  } catch (_error) {
+  } catch (error) {
+    console.error("POST /api/chat unhandled error:", error?.message, error?.stack);
     return NextResponse.json(
       {
         status: "unavailable",
         answer_text: "Please try again later.",
+        _debug_error: error?.message,
       },
       { status: 503 }
     );
