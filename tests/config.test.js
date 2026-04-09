@@ -16,13 +16,11 @@ test("loadConfig returns required env values when all are present", () => {
   const config = loadConfig({
     GCP_SA_KEY_APP: '{"client_email":"app-runner@example.com"}',
     GCP_BUCKET_NAME: "football-stats-qa-prod",
-    ANTHROPIC_API_KEY: "sk-ant-test",
   });
 
   assert.deepEqual(config, {
     gcpServiceAccountKey: '{"client_email":"app-runner@example.com"}',
     gcpBucketName: "football-stats-qa-prod",
-    anthropicApiKey: "sk-ant-test",
   });
 });
 
@@ -31,13 +29,11 @@ test("loadConfig throws a clear error listing missing required env vars", () => 
 
   assert.throws(
     () =>
-      loadConfig({
-        GCP_BUCKET_NAME: "football-stats-qa-prod",
-      }),
+      loadConfig({}),
     {
       name: "Error",
       message:
-        "Missing required environment variables: GCP_SA_KEY_APP, ANTHROPIC_API_KEY",
+        "Missing required environment variables: GCP_BUCKET_NAME, GCP_SA_KEY_APP",
     }
   );
 });
@@ -47,9 +43,8 @@ test("getConfig reads process.env and fails clearly when startup config is incom
 
   process.env = {
     ...originalEnv,
-    GCP_SA_KEY_APP: '{"client_email":"app-runner@example.com"}',
+    GCP_SA_KEY_APP: undefined,
     GCP_BUCKET_NAME: "football-stats-qa-prod",
-    ANTHROPIC_API_KEY: "",
   };
 
   try {
@@ -57,7 +52,7 @@ test("getConfig reads process.env and fails clearly when startup config is incom
 
     assert.throws(() => getConfig(), {
       name: "Error",
-      message: "Missing required environment variables: ANTHROPIC_API_KEY",
+      message: "Missing required environment variables: GCP_SA_KEY_APP",
     });
   } finally {
     process.env = originalEnv;
@@ -110,7 +105,7 @@ test(".env.example lists every required runtime variable without real secrets", 
 
   assert.match(envExample, /^GCP_SA_KEY_APP=$/m);
   assert.match(envExample, /^GCP_BUCKET_NAME=$/m);
-  assert.match(envExample, /^ANTHROPIC_API_KEY=$/m);
+  assert.match(envExample, /^GCP_SA_KEY_APP=$/m);
   assert.match(envExample, /^FOOTBALL_API_KEY=$/m);
   assert.match(envExample, /^SEASON=$/m);
   assert.doesNotMatch(envExample, /sk-[A-Za-z0-9]/);

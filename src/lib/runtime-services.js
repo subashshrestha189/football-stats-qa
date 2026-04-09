@@ -7,7 +7,7 @@ const { getConfig } = require("./config");
 const { createChatHandler } = require("./chat-handler");
 const { createDebugHandler } = require("./debug-handler");
 const { createGcsStorage } = require("./gcs-storage");
-const { createAnthropicModelClient } = require("./anthropic-model-client");
+const { createRuleBasedModelClient } = require("./rule-based-model-client");
 
 let sessionStore;
 let chatHandler;
@@ -24,7 +24,7 @@ function getSessionStore() {
 function getChatHandler() {
   if (!chatHandler) {
     const config = getConfig();
-    const modelClient = createAnthropicModelClient({ apiKey: config.anthropicApiKey });
+    const modelClient = createRuleBasedModelClient();
     const storageImpl = createGcsStorage({ serviceAccountKey: config.gcpServiceAccountKey });
 
     chatHandler = createChatHandler({
