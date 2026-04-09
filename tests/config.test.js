@@ -17,16 +17,12 @@ test("loadConfig returns required env values when all are present", () => {
     GCP_SA_KEY_APP: '{"client_email":"app-runner@example.com"}',
     GCP_BUCKET_NAME: "football-stats-qa-prod",
     OPENAI_API_KEY: "sk-test",
-    FOOTBALL_API_KEY: "football-test",
-    SEASON: "2024/25",
   });
 
   assert.deepEqual(config, {
     gcpServiceAccountKey: '{"client_email":"app-runner@example.com"}',
     gcpBucketName: "football-stats-qa-prod",
     openAiApiKey: "sk-test",
-    footballApiKey: "football-test",
-    season: "2024/25",
   });
 });
 
@@ -37,12 +33,11 @@ test("loadConfig throws a clear error listing missing required env vars", () => 
     () =>
       loadConfig({
         GCP_BUCKET_NAME: "football-stats-qa-prod",
-        SEASON: "2024/25",
       }),
     {
       name: "Error",
       message:
-        "Missing required environment variables: FOOTBALL_API_KEY, GCP_SA_KEY_APP, OPENAI_API_KEY",
+        "Missing required environment variables: GCP_SA_KEY_APP, OPENAI_API_KEY",
     }
   );
 });
@@ -55,8 +50,6 @@ test("getConfig reads process.env and fails clearly when startup config is incom
     GCP_SA_KEY_APP: '{"client_email":"app-runner@example.com"}',
     GCP_BUCKET_NAME: "football-stats-qa-prod",
     OPENAI_API_KEY: "",
-    FOOTBALL_API_KEY: "football-test",
-    SEASON: "2024/25",
   };
 
   try {
