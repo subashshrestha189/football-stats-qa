@@ -5,13 +5,13 @@ const UCL_PATTERNS = /\b(ucl|champions league|champions)\b/i;
 // Intent keywords
 const INTENT_PATTERNS = {
   standings: /\b(stand|table|top of|position|rank|points|leader|first place|who is top|who's top|leaderboard)\b/i,
-  top_scorers: /\b(scorer|scoring|top scorer|most goals|golden boot|goals? leader|who has (the most|scored))\b/i,
+  top_scorers: /\b(scorers?|scoring|top scorer|most goals|golden boot|goals? leader|who has (the most|scored)|leading (scorer|goals)|in goals)\b/i,
   recent_results: /\b(result|recent|last (game|match|week)|played|score was|beat|beaten|won|lost|defeated|latest match)\b/i,
   upcoming_fixtures: /\b(fixture|upcoming|next (game|match|week)|schedule|when (do|does|is)|playing next|coming up)\b/i,
 };
 
 // Topics this app cannot answer
-const OUT_OF_SCOPE = /\b(assist|injur|transfer|wage|salary|age|height|weight|red card|yellow card|suspend|ban|manag|coach|owner|fan|ticket|history|all.time|career|nation)\b/i;
+const OUT_OF_SCOPE = /\b(assists?|injur|transfer|wage|salary|age|height|weight|red card|yellow card|suspend|ban|manag|coach|owner|fan|ticket|history|all.time|career|nation)\b/i;
 
 function detectCompetition(text) {
   if (EPL_PATTERNS.test(text)) return "EPL";
@@ -61,10 +61,7 @@ function buildUpcomingFixturesAnswer(competition, data, snapshotDate) {
 
 function createRuleBasedModelClient() {
   function classify({ input }) {
-    const competition = detectCompetition(input);
-    const intent = detectIntent(input);
-
-    if (!intent && OUT_OF_SCOPE.test(input)) {
+    if (OUT_OF_SCOPE.test(input)) {
       return {
         intent: "refuse",
         competition: null,
@@ -75,6 +72,9 @@ function createRuleBasedModelClient() {
           "That topic is outside this app's scope. I can answer questions about standings, top scorers, recent results, and upcoming fixtures for the EPL and Champions League.",
       };
     }
+
+    const competition = detectCompetition(input);
+    const intent = detectIntent(input);
 
     if (!intent) {
       return {
