@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "type": "representative",
+    "input": "Who is top of the EPL table?",
+    "expected_intent": "standings",
+    "expected_competition": "EPL",
+    "expected_confidence": "high"
+  },
+  {
+    "id": 2,
+    "type": "representative",
+    "input": "UCL top scorers",
+    "expected_intent": "top_scorers",
+    "expected_competition": "UCL",
+    "expected_confidence": "high"
+  },
+  {
+    "id": 3,
+    "type": "representative",
+    "input": "Show me recent Premier League results",
+    "expected_intent": "recent_results",
+    "expected_competition": "EPL",
+    "expected_confidence": "high"
+  },
+  {
+    "id": 4,
+    "type": "representative",
+    "input": "Upcoming Champions League fixtures",
+    "expected_intent": "upcoming_fixtures",
+    "expected_competition": "UCL",
+    "expected_confidence": "high"
+  },
+  {
+    "id": 5,
+    "type": "representative",
+    "input": "Who leads the EPL in goals?",
+    "expected_intent": "top_scorers",
+    "expected_competition": "EPL",
+    "expected_confidence": "high"
+  },
+  {
+    "id": 6,
+    "type": "failure",
+    "input": "Who has the most assists?",
+    "expected_intent": "refuse",
+    "expected_competition": null,
+    "expected_confidence": "high"
+  },
+  {
+    "id": 7,
+    "type": "failure",
+    "input": "Who is top of the table?",
+    "expected_intent": "standings",
+    "expected_competition": null,
+    "expected_confidence": "low"
+  }
+]

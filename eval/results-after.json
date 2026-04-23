@@ -1,0 +1,15 @@
+{
+  "description": "Classifier results after fix (commit f5c515b). All three bugs fixed: scorer->scorers? pattern, assist->assists? pattern, out-of-scope check moved before intent detection, added 'in goals' and 'leading scorer' patterns.",
+  "passed": 7,
+  "total": 7,
+  "routing_accuracy": "100%",
+  "results": [
+    { "id": 1, "input": "Who is top of the EPL table?", "pass": true, "actual_intent": "standings", "actual_competition": "EPL", "actual_confidence": "high" },
+    { "id": 2, "input": "UCL top scorers", "pass": true, "actual_intent": "top_scorers", "actual_competition": "UCL", "actual_confidence": "high" },
+    { "id": 3, "input": "Show me recent Premier League results", "pass": true, "actual_intent": "recent_results", "actual_competition": "EPL", "actual_confidence": "high" },
+    { "id": 4, "input": "Upcoming Champions League fixtures", "pass": true, "actual_intent": "upcoming_fixtures", "actual_competition": "UCL", "actual_confidence": "high" },
+    { "id": 5, "input": "Who leads the EPL in goals?", "pass": true, "actual_intent": "top_scorers", "actual_competition": "EPL", "actual_confidence": "high" },
+    { "id": 6, "input": "Who has the most assists?", "pass": true, "actual_intent": "refuse", "actual_competition": null, "actual_confidence": "high" },
+    { "id": 7, "input": "Who is top of the table?", "pass": true, "actual_intent": "standings", "actual_competition": null, "actual_confidence": "low" }
+  ]
+}
