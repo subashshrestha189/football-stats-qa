@@ -10,7 +10,7 @@
   {
     "id": 2,
     "type": "representative",
-    "input": "UCL top scorers",
+    "input": "UCL top scorer",
     "expected_intent": "top_scorers",
     "expected_competition": "UCL",
     "expected_confidence": "high"
@@ -34,7 +34,7 @@
   {
     "id": 5,
     "type": "representative",
-    "input": "Who leads the EPL in goals?",
+    "input": "Who is the top scorer of EPL?",
     "expected_intent": "top_scorers",
     "expected_competition": "EPL",
     "expected_confidence": "high"

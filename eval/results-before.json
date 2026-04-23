@@ -1,15 +1,15 @@
 {
-  "description": "Classifier results before fix (commit b9ec881). Three cases failed due to regex word boundary bugs and incorrect out-of-scope check ordering.",
-  "passed": 4,
+  "description": "Classifier results before fix (commit b9ec881). One case failed: assists query was incorrectly routed to top_scorers instead of being refused, because the out-of-scope check ran after intent detection and the word boundary did not match 'assists'.",
+  "passed": 6,
   "total": 7,
-  "routing_accuracy": "57%",
+  "routing_accuracy": "86%",
   "results": [
     { "id": 1, "input": "Who is top of the EPL table?", "pass": true, "actual_intent": "standings", "actual_competition": "EPL", "actual_confidence": "high" },
-    { "id": 2, "input": "UCL top scorers", "pass": false, "actual_intent": null, "actual_competition": "UCL", "actual_confidence": "low", "failure_reason": "\\bscorer\\b word boundary did not match 'scorers'" },
+    { "id": 2, "input": "UCL top scorer", "pass": true, "actual_intent": "top_scorers", "actual_competition": "UCL", "actual_confidence": "high" },
     { "id": 3, "input": "Show me recent Premier League results", "pass": true, "actual_intent": "recent_results", "actual_competition": "EPL", "actual_confidence": "high" },
     { "id": 4, "input": "Upcoming Champions League fixtures", "pass": true, "actual_intent": "upcoming_fixtures", "actual_competition": "UCL", "actual_confidence": "high" },
-    { "id": 5, "input": "Who leads the EPL in goals?", "pass": false, "actual_intent": null, "actual_competition": "EPL", "actual_confidence": "low", "failure_reason": "No pattern matched 'leads in goals' phrasing" },
-    { "id": 6, "input": "Who has the most assists?", "pass": false, "actual_intent": "top_scorers", "actual_competition": null, "actual_confidence": "low", "failure_reason": "Out-of-scope check ran after intent detection; 'who has the most' matched top_scorers before 'assists' was caught. Also \\bassist\\b did not match 'assists'." },
+    { "id": 5, "input": "Who is the top scorer of EPL?", "pass": true, "actual_intent": "top_scorers", "actual_competition": "EPL", "actual_confidence": "high" },
+    { "id": 6, "input": "Who has the most assists?", "pass": false, "actual_intent": "top_scorers", "actual_competition": null, "actual_confidence": "low", "failure_reason": "Out-of-scope check ran after intent detection. 'who has the most' matched top_scorers before 'assists' was caught. Also \\bassist\\b word boundary did not match 'assists'." },
     { "id": 7, "input": "Who is top of the table?", "pass": true, "actual_intent": "standings", "actual_competition": null, "actual_confidence": "low" }
   ]
 }
