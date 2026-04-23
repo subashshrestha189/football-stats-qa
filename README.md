@@ -45,6 +45,31 @@ React Chat UI  (app/page.jsx)
 **Supported queries:** standings, top scorers, recent results, upcoming fixtures — for EPL and UCL.
 **Data freshness:** daily snapshot, cited in every answer ("Data as of YYYY-MM-DD").
 
+## Data Flow
+
+- **Raw input:** 6 `football-data.org` endpoints for EPL and UCL standings, matches, and scorers.
+- **Bronze:** raw API JSON is stored as fetched in `bronze/{competition}/{endpoint}/{date}.json`.
+- **Silver:** bronze records are normalized into a validated schema in `silver/{competition}/{endpoint}/{date}.json`.
+- **Gold:** silver data is shaped into serving views for `standings`, `recent_results`, `top_scorers`, and `upcoming_fixtures`.
+- **Source of truth:** the app answers only from `gold/latest/{competition}/{intent}.json` when `gold/manifest.json` says the snapshot is `complete`.
+
+### Runtime Path
+
+1. User submits a question in the chat UI.
+2. `/api/chat` applies guardrails and classifies the question.
+3. The retriever reads the matching gold file from GCS.
+4. The answerer sends only that grounded payload to the model.
+5. The UI renders `answered`, `clarify`, `refuse`, or `unavailable`.
+
+### Error Points
+
+- preflight fails because a source endpoint is unavailable
+- bronze fetch fails on a bad API response
+- silver validation fails on missing required fields
+- gold staging fails, so promotion is blocked
+- manifest is not `complete`, so runtime returns `unavailable`
+- model output fails grounding checks, so the app falls back
+
 ## Recommended Execution Order
 
 Recommended first 5 issues:
